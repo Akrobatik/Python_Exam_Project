@@ -1,6 +1,7 @@
 from selenium import webdriver
 from time import sleep
 
+file_name = './quote.csv'
 pagenumber = 2
 link_array = []
 
@@ -19,7 +20,9 @@ while True:
         for i in range(len(tr)):
             href = driver.find_element_by_tag_name('tbody').find_elements_by_tag_name('a')
             link_array.append(href[i].get_attribute('href'))
-            print(href[i].get_attribute('href'))
+            # print(href[i].get_attribute('href'))
+            with open(file_name, 'w') as file_object:
+                    file_object.write(href[i].get_attribute('href') + '\n')
         sleep(3)
         link = driver.find_element_by_link_text(str(pagenumber))
     except NoSuchElementException:

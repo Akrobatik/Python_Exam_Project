@@ -1,5 +1,8 @@
-j = 1
+file_name = './quote.csv'
 
-for i in range(5):
-    j += 1
-    print(j)
+one = '1'
+two = 'Emil'
+three = 'Rasmussen'
+oneTwoThree = 'Emil,Rasmussen'
+with open(file_name, 'a') as file_object:
+    file_object.write(oneTwoThree)
