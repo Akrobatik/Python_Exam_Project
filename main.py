@@ -3,9 +3,8 @@ from time import sleep
 
 # Setting up the variables
 url = 'https://www.nyse.com/listings_directory/stock'
-link_array = []
-saved_data = []
-page_number = 0;
+file_name = './quote.csv'
+page_number = 2;
 # Setting the driver to Chrome
 driver = webdriver.Chrome('./chromedriver')
 # Sets the URL in browser to String url
@@ -21,31 +20,23 @@ sleep(3)
 while True:
     try:
         sleep(3)
-        for i in range(len(tr)):
-            href = driver.find_element_by_tag_name('tbody').find_elements_by_tag_name('a')
-            link_array.append(href[i].get_attribute('href'))
+        with open(file_name, 'a') as file_object:
+            for i in range(len(tr)):
+                href = driver.find_element_by_tag_name('tbody').find_elements_by_tag_name('a')
+                link = (href[i].get_attribute('href'))
+                driver.execute_script("window.open('');")
+                sleep(3)
+                driver.switch_to.window(driver.window_handles[1])
+                driver.get(link)
+                sleep(4)
+                quote = driver.find_element_by_css_selector('span.d-dquote-x3').get_attribute('textContent')
+                # print(quote)
+                file_object.write(quote + '\n')
+                driver.close()
+                sleep(3)
+                driver.switch_to.window(driver.window_handles[0])
+                driver.get(url)
         sleep(3)
-        # Starts the loop which opens a new tab, scrapes Quote, closes the tab and re enters loop
-        for i in range(len(link_array)):
-            # Open a new window
-            # This does not change focus to the new window for the driver.
-            driver.execute_script("window.open('');")
-            sleep(3)
-            # Switch to the new window
-            driver.switch_to.window(driver.window_handles[1])
-            driver.get(link_array[i])
-            sleep(4)
-            # Do scraping
-            quote = driver.find_element_by_css_selector('span.d-dquote-x3').get_attribute('textContent')
-            print(quote)
-            saved_data.append(quote)
-            # close the active tab
-            driver.close()
-            sleep(3)
-            # Switch back to the first tab
-            driver.switch_to.window(driver.window_handles[0])
-            driver.get(url)
-            sleep(3)
         link = driver.find_element_by_link_text(str(page_number))
     except NoSuchElementException:
         driver.quit()
