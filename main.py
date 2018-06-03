@@ -1,10 +1,13 @@
 from selenium import webdriver
 from time import sleep
+from selenium.common.exceptions import NoSuchElementException
+
 
 # Setting up the variables
 url = 'https://www.nyse.com/listings_directory/stock'
-file_name = './quote.csv'
-page_number = 2;
+file_name = './quote1.csv'
+page_number = 2
+backup_list = []
 # Setting the driver to Chrome
 driver = webdriver.Chrome('./chromedriver')
 # Sets the URL in browser to String url
@@ -24,25 +27,24 @@ while True:
             for i in range(len(tr)):
                 a_tag = driver.find_element_by_tag_name('tbody').find_elements_by_tag_name('a')
                 link = (a_tag[i].get_attribute('href'))
+                if (link == 'https://www.nyse.com/quote/XASE:AJAX'):
+                    link = 'https://www.nyse.com/quote/XNYS:AJG'
+                backup_list.append(link)
+                print(backup_list)
                 link_symbol = a_tag[i].get_attribute('textContent')
                 driver.execute_script("window.open('');")
-                sleep(3)
                 driver.switch_to.window(driver.window_handles[1])
                 driver.get(link)
                 sleep(4)
                 name = driver.find_element_by_xpath('//*[@id="content-9d1f8b01-08a6-4db5-99fa-c40f5873615a"]/div/div[1]/header/h1').get_attribute('textContent')
                 quote = driver.find_element_by_css_selector('span.d-dquote-x3').get_attribute('textContent')
-                # print(quote)
-                file_object.write(name + ',' + link_symbol + ',' + link + ',' + quote + '\n')
-                driver.close()
+                file_object.write(name + ', ' + link_symbol + ', ' + quote + '\n')
                 sleep(3)
+                driver.close()
                 driver.switch_to.window(driver.window_handles[0])
-                driver.get(url)
-        sleep(3)
         link = driver.find_element_by_link_text(str(page_number))
     except NoSuchElementException:
-        driver.quit()
-        break
+        raise
     link.click()
     page_number += 1
 sleep(3)
